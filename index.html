@@ -658,23 +658,23 @@ let labelsVisible = false;
 const toggleLabelsBox = document.getElementById('toggle-labels-box');
 
 function buildLabelsLayer(geojsonData) {
-  labelsLayer = L.geoJSON(geojsonData, {
-    pointToLayer: () => null,
-    style: () => ({ stroke: false, fill: false }),
-    onEachFeature: (feature, layer) => {
-      const p = feature.properties;
-      const nom = p.nom || p.NOM_COM || p.name || '';
-      if (!nom) return;
-      const center = layer.getBounds().getCenter();
-      L.marker(center, {
-        icon: L.divIcon({
-          className: 'commune-label',
-          html: nom,
-          iconAnchor: null
-        }),
-        interactive: false
-      }).addTo(labelsLayer);
-    }
+  // Couche vide pour contenir les markers de labels
+  labelsLayer = L.layerGroup();
+  geojsonData.features.forEach(feature => {
+    const p = feature.properties;
+    const nom = p.nom || p.NOM_COM || p.name || '';
+    if (!nom) return;
+    // Calculer le centroïde approximatif depuis les coordonnées
+    const tmpLayer = L.geoJSON(feature);
+    const center = tmpLayer.getBounds().getCenter();
+    L.marker(center, {
+      icon: L.divIcon({
+        className: 'commune-label',
+        html: nom,
+        iconAnchor: null
+      }),
+      interactive: false
+    }).addTo(labelsLayer);
   });
 }
 
@@ -690,16 +690,19 @@ document.getElementById('toggle-labels').addEventListener('click', () => {
   labelsVisible = !labelsVisible;
 });
 
-
+// ─────────────────────────────────────────
+// TOGGLE COUCHE BD RPG
+// ─────────────────────────────────────────
 let rpgVisible = true;
+const toggleRpgBox = document.getElementById('toggle-rpg-box');
 document.getElementById('toggle-rpg').addEventListener('click', () => {
   if (!rpgLayer) return;
   if (rpgVisible) {
     map.removeLayer(rpgLayer);
-    toggleBox.classList.remove('active');
+    toggleRpgBox.classList.remove('active');
   } else {
     rpgLayer.addTo(map);
-    toggleBox.classList.add('active');
+    toggleRpgBox.classList.add('active');
   }
   rpgVisible = !rpgVisible;
 });
