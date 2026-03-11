@@ -327,6 +327,37 @@
       </label>
     </div>
 
+    <!-- Légende -->
+    <div class="panel-section">
+      <div class="panel-label">% SAU / surface commune</div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:14px;height:14px;background:#1a5c28;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
+          <span style="font-size:10px;color:var(--text)">≥ 80%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:14px;height:14px;background:#2d7a3a;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
+          <span style="font-size:10px;color:var(--text)">60 – 80%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:14px;height:14px;background:#4d9b5e;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
+          <span style="font-size:10px;color:var(--text)">40 – 60%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:14px;height:14px;background:#90c49a;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
+          <span style="font-size:10px;color:var(--text)">20 – 40%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:14px;height:14px;background:#d4edda;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
+          <span style="font-size:10px;color:var(--text)">0 – 20%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:14px;height:14px;background:#f5f5f5;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
+          <span style="font-size:10px;color:var(--muted)">Aucune donnée</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Info commune -->
     <div id="commune-info">
       <div class="info-placeholder">
@@ -409,22 +440,71 @@ document.querySelectorAll('.basemap-btn').forEach(btn => {
 // ─────────────────────────────────────────
 let rpgLayer = null;
 
+// ─────────────────────────────────────────
+// CALCUL SURFACE GÉODÉSIQUE (m²) depuis GeoJSON
+// Formule de Shoelace adaptée aux coordonnées géographiques
+// ─────────────────────────────────────────
+function geojsonAreaHa(geometry) {
+  const R = 6371000; // rayon terre en mètres
+  function ringArea(coords) {
+    let area = 0;
+    const n = coords.length;
+    for (let i = 0; i < n - 1; i++) {
+      const [lng1, lat1] = coords[i];
+      const [lng2, lat2] = coords[i + 1];
+      area += (lng2 - lng1) * Math.PI / 180
+            * (2 + Math.sin(lat1 * Math.PI / 180) + Math.sin(lat2 * Math.PI / 180));
+    }
+    return Math.abs(area * R * R / 2);
+  }
+  let total = 0;
+  if (geometry.type === 'Polygon') {
+    total = ringArea(geometry.coordinates[0]);
+  } else if (geometry.type === 'MultiPolygon') {
+    for (const poly of geometry.coordinates) total += ringArea(poly[0]);
+  }
+  return total / 10000; // m² → ha
+}
+
+// ─────────────────────────────────────────
+// GRADIENT VERT selon % SAU
+// ─────────────────────────────────────────
+function getPctSAU(feature) {
+  const p = feature.properties;
+  const surf = Number(p.rpg_surf_ha || 0);
+  if (surf <= 0) return 0;
+  const communeHa = geojsonAreaHa(feature.geometry);
+  if (communeHa <= 0) return 0;
+  return Math.min((surf / communeHa) * 100, 100);
+}
+
+function sauColor(pct) {
+  // Blanc → vert pâle → vert moyen → vert foncé
+  if (pct <= 0)  return { fill: '#f5f5f5', opacity: 0.7 };
+  if (pct < 20)  return { fill: '#d4edda', opacity: 0.75 };
+  if (pct < 40)  return { fill: '#90c49a', opacity: 0.80 };
+  if (pct < 60)  return { fill: '#4d9b5e', opacity: 0.85 };
+  if (pct < 80)  return { fill: '#2d7a3a', opacity: 0.88 };
+  return               { fill: '#1a5c28', opacity: 0.90 };
+}
+
 function styleCommune(feature) {
+  const pct = getPctSAU(feature);
+  const { fill, opacity } = sauColor(pct);
   return {
     color: '#000000',
     weight: 1.2,
     opacity: 0.6,
-    fillColor: '#ffffff',
-    fillOpacity: 0.75
+    fillColor: fill,
+    fillOpacity: opacity
   };
 }
 
 function highlightCommune(e) {
   e.target.setStyle({
-    weight: 2,
+    weight: 2.5,
     color: '#58a6ff',
-    fillColor: '#ffffff',
-    fillOpacity: 0.5
+    fillOpacity: 0.95
   });
 }
 
@@ -438,7 +518,12 @@ function showCommuneInfo(feature) {
   const code = p.code || p.INSEE_COM || p.CODE_INSEE || '—';
   const surf = p.rpg_surf_ha != null ? Number(p.rpg_surf_ha).toLocaleString('fr-FR', {maximumFractionDigits: 1}) : '—';
   const nb   = p.rpg_nb_parc != null ? Number(p.rpg_nb_parc).toLocaleString('fr-FR') : '—';
-  const pct  = p.rpg_pct_comm != null ? Number(p.rpg_pct_comm).toFixed(1) : '—';
+
+  // % SAU recalculé proprement
+  const communeHa = geojsonAreaHa(feature.geometry);
+  const surfNum   = Number(p.rpg_surf_ha || 0);
+  const pctSAU    = communeHa > 0 ? Math.min((surfNum / communeHa) * 100, 100).toFixed(1) : '—';
+  const communeHaStr = communeHa > 0 ? communeHa.toLocaleString('fr-FR', {maximumFractionDigits: 0}) : '—';
 
   // Collecte des cultures non nulles
   const cultureData = [];
@@ -478,8 +563,16 @@ function showCommuneInfo(feature) {
     <div class="commune-name">${nom}</div>
     <div class="commune-code">INSEE ${code}</div>
     <div class="stat-row">
+      <span class="stat-key">SURFACE COMMUNE</span>
+      <span class="stat-val blue">${communeHaStr} ha</span>
+    </div>
+    <div class="stat-row">
       <span class="stat-key">SURFACE AGRICOLE</span>
       <span class="stat-val">${surf} ha</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-key">% SAU</span>
+      <span class="stat-val" style="color:${sauColor(parseFloat(pctSAU)).fill === '#f5f5f5' ? 'var(--muted)' : sauColor(parseFloat(pctSAU)).fill}">${pctSAU}%</span>
     </div>
     <div class="stat-row">
       <span class="stat-key">NB PARCELLES</span>
