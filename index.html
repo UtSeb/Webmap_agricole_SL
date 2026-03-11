@@ -1,94 +1,498 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Ma Webmap</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observatoire Agricole — Sud Lorraine</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; }
-    #map { height: 100vh; width: 100%; }
+    :root {
+      --bg:        #0d1117;
+      --panel:     #161b22;
+      --border:    #30363d;
+      --accent:    #3fb950;
+      --accent2:   #58a6ff;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --danger:    #f85149;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      flex-shrink: 0;
+    }
+    .header-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    header span.sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    .header-spacer { flex: 1; }
+    .header-tag {
+      font-size: 10px;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── LAYOUT ── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── MAP ── */
+    #map {
+      flex: 1;
+      height: 100%;
+    }
+
+    /* ── PANEL ── */
+    #panel {
+      width: 320px;
+      background: var(--panel);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .panel-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-label {
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* Légende couches */
+    .layer-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .layer-toggle:hover { opacity: 0.8; }
+    .layer-toggle input { display: none; }
+    .toggle-box {
+      width: 14px; height: 14px;
+      border: 2px solid var(--accent);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .toggle-box.active { background: var(--accent); }
+    .toggle-box.active::after {
+      content: '✓';
+      color: var(--bg);
+      font-size: 9px;
+      font-weight: bold;
+    }
+    .layer-toggle span { font-size: 12px; color: var(--text); }
+
+    /* Fonds de carte */
+    .basemap-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 5px 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 2px;
+    }
+    .basemap-btn:hover { border-color: var(--accent2); color: var(--text); }
+    .basemap-btn.active { border-color: var(--accent2); color: var(--accent2); background: rgba(88,166,255,0.08); }
+
+    /* Info commune */
+    #commune-info {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    #commune-info::-webkit-scrollbar { width: 4px; }
+    #commune-info::-webkit-scrollbar-track { background: var(--bg); }
+    #commune-info::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .info-placeholder {
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+      padding: 40px 0;
+      line-height: 1.8;
+    }
+    .info-placeholder .icon { font-size: 28px; margin-bottom: 10px; opacity: 0.4; }
+
+    .commune-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .commune-code {
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      letter-spacing: 0.1em;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-key { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+    .stat-val {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-val.blue { color: var(--accent2); }
+
+    .cultures-title {
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 16px 0 8px;
+    }
+
+    .culture-bar-row {
+      margin-bottom: 8px;
+    }
+    .culture-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      margin-bottom: 3px;
+    }
+    .culture-bar-name { color: var(--text); }
+    .culture-bar-val { color: var(--muted); }
+    .culture-bar-bg {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .culture-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    /* Leaflet overrides */
+    .leaflet-control-zoom a {
+      background: var(--panel) !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: var(--border) !important;
+    }
+    .leaflet-control-attribution {
+      background: rgba(13,17,23,0.8) !important;
+      color: var(--muted) !important;
+      font-size: 9px !important;
+    }
+    .leaflet-control-attribution a { color: var(--accent2) !important; }
   </style>
 </head>
 <body>
+
+<header>
+  <div class="header-dot"></div>
+  <h1>Observatoire Agricole <span class="sub">/ Sud Lorraine</span></h1>
+  <div class="header-spacer"></div>
+  <div class="header-tag">BD RPG</div>
+</header>
+
+<div class="main">
   <div id="map"></div>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <div id="panel">
+
+    <!-- Fonds de carte -->
+    <div class="panel-section">
+      <div class="panel-label">Fond de carte</div>
+      <div id="basemap-btns">
+        <button class="basemap-btn active" data-bm="osm">OSM</button>
+        <button class="basemap-btn" data-bm="ignOrtho">IGN Ortho</button>
+        <button class="basemap-btn" data-bm="ignPlan">IGN Plan</button>
+        <button class="basemap-btn" data-bm="satellite">Satellite</button>
+        <button class="basemap-btn" data-bm="topo">Topo</button>
+      </div>
+    </div>
+
+    <!-- Couches -->
+    <div class="panel-section">
+      <div class="panel-label">Couches</div>
+      <label class="layer-toggle" id="toggle-rpg">
+        <div class="toggle-box active" id="toggle-rpg-box"></div>
+        <span>Communes BD RPG</span>
+      </label>
+    </div>
+
+    <!-- Info commune -->
+    <div id="commune-info">
+      <div class="info-placeholder">
+        <div class="icon">⬡</div>
+        Cliquez sur une commune<br>pour afficher ses données agricoles
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  var map = L.map('map').setView([48.57, 7.75], 12);
 
-  var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+// ─────────────────────────────────────────
+// CORRESPONDANCE CODES CULTURES BD RPG
+// ─────────────────────────────────────────
+const CULTURES = {
+  "1":  "Céréales",
+  "11": "Blé tendre",
+  "15": "Maïs grain",
+  "16": "Orge",
+  "17": "Autres céréales",
+  "18": "Colza",
+  "19": "Tournesol",
+  "2":  "Protéagineux",
+  "20": "Autres oléagineux",
+  "21": "Légumineuses",
+  "22": "Fourrage",
+  "24": "Prairie permanente",
+  "25": "Prairie temporaire",
+  "28": "Légumes / fleurs",
+  "3":  "Vigne",
+  "4":  "Verger",
+  "5":  "Estive / lande",
+  "6":  "Canne à sucre",
+  "7":  "Divers",
+  "8":  "Gel",
+  "9":  "Autre"
+};
+
+// ─────────────────────────────────────────
+// CARTE
+// ─────────────────────────────────────────
+const map = L.map('map', { zoomControl: true }).setView([48.4, 6.2], 9);
+
+const baseMaps = {
+  osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19
+  }),
+  satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri', maxZoom: 19
+  }),
+  topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenTopoMap', maxZoom: 17
+  }),
+  ignPlan: L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
+    attribution: '© IGN', maxZoom: 19
+  }),
+  ignOrtho: L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
+    attribution: '© IGN', maxZoom: 21
+  })
+};
+
+baseMaps.osm.addTo(map);
+
+// Boutons fonds de carte
+document.querySelectorAll('.basemap-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.bm;
+    Object.values(baseMaps).forEach(l => map.removeLayer(l));
+    baseMaps[key].addTo(map);
+    document.querySelectorAll('.basemap-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
   });
+});
 
-  var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '© Esri'
-  });
+// ─────────────────────────────────────────
+// COUCHE BD RPG
+// ─────────────────────────────────────────
+let rpgLayer = null;
 
-  var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenTopoMap'
-  });
-
-  // Fonds IGN Géoportail (sans clé API, accès public limité)
-  var ignPlan = L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
-    attribution: '© IGN Géoportail',
-    maxZoom: 19
-  });
-
-  var ignScan25 = L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
-    attribution: '© IGN Géoportail',
-    maxZoom: 18
-  });
-
-  var ignOrtho = L.tileLayer('https://wxs.ign.fr/essentiels/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}', {
-    attribution: '© IGN Géoportail',
-    maxZoom: 21
-  });
-
-  // Activer OSM par défaut
-  osm.addTo(map);
-
-  var baseMaps = {
-    "OpenStreetMap": osm,
-    "Satellite (Esri)": satellite,
-    "Topographique": topo,
-    "IGN Plan": ignPlan,
-    "IGN Cartes": ignScan25,
-    "IGN Orthophoto": ignOrtho
+function styleCommune(feature) {
+  return {
+    color: '#3fb950',
+    weight: 1.2,
+    opacity: 0.8,
+    fillColor: '#3fb950',
+    fillOpacity: 0.06
   };
+}
 
-  L.control.layers(baseMaps).addTo(map);
-</script>  <script>
-    // Initialiser la carte (lat, lng, zoom)
-    var map = L.map('map').setView([48.57, 7.75], 12); // Strasbourg
+function highlightCommune(e) {
+  e.target.setStyle({
+    weight: 2,
+    color: '#58a6ff',
+    fillOpacity: 0.15
+  });
+}
 
-    // Fond de carte OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+function resetHighlight(e) {
+  rpgLayer.resetStyle(e.target);
+}
+
+function showCommuneInfo(feature) {
+  const p = feature.properties;
+  const nom = p.nom || p.NOM_COM || p.name || '—';
+  const code = p.code || p.INSEE_COM || p.CODE_INSEE || '—';
+  const surf = p.rpg_surf_ha != null ? Number(p.rpg_surf_ha).toLocaleString('fr-FR', {maximumFractionDigits: 1}) : '—';
+  const nb   = p.rpg_nb_parc != null ? Number(p.rpg_nb_parc).toLocaleString('fr-FR') : '—';
+  const pct  = p.rpg_pct_comm != null ? Number(p.rpg_pct_comm).toFixed(1) : '—';
+
+  // Collecte des cultures non nulles
+  const cultureData = [];
+  let maxSurf = 0;
+  for (const [code_c, label] of Object.entries(CULTURES)) {
+    const key = 'rpg_' + code_c;
+    const val = p[key];
+    if (val && Number(val) > 0) {
+      const v = Number(val);
+      cultureData.push({ label, val: v });
+      if (v > maxSurf) maxSurf = v;
+    }
+  }
+  cultureData.sort((a, b) => b.val - a.val);
+
+  let culturesHTML = '';
+  if (cultureData.length > 0) {
+    culturesHTML = `<div class="cultures-title">Détail par culture (ha)</div>`;
+    for (const c of cultureData) {
+      const pctBar = maxSurf > 0 ? (c.val / maxSurf * 100).toFixed(1) : 0;
+      culturesHTML += `
+        <div class="culture-bar-row">
+          <div class="culture-bar-header">
+            <span class="culture-bar-name">${c.label}</span>
+            <span class="culture-bar-val">${c.val.toLocaleString('fr-FR', {maximumFractionDigits: 1})} ha</span>
+          </div>
+          <div class="culture-bar-bg">
+            <div class="culture-bar-fill" style="width:${pctBar}%"></div>
+          </div>
+        </div>`;
+    }
+  } else {
+    culturesHTML = `<div class="info-placeholder" style="padding:16px 0"><span style="color:var(--muted);font-size:11px">Aucune donnée agricole</span></div>`;
+  }
+
+  document.getElementById('commune-info').innerHTML = `
+    <div class="commune-name">${nom}</div>
+    <div class="commune-code">INSEE ${code}</div>
+    <div class="stat-row">
+      <span class="stat-key">SURFACE AGRICOLE</span>
+      <span class="stat-val">${surf} ha</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-key">NB PARCELLES</span>
+      <span class="stat-val blue">${nb}</span>
+    </div>
+    ${culturesHTML}
+  `;
+}
+
+function onEachCommune(feature, layer) {
+  layer.on({
+    mouseover: highlightCommune,
+    mouseout: resetHighlight,
+    click: (e) => {
+      showCommuneInfo(feature);
+    }
+  });
+}
+
+// Chargement du GeoJSON
+fetch('data/communes_rpg.geojson')
+  .then(r => {
+    if (!r.ok) throw new Error('Fichier GeoJSON introuvable');
+    return r.json();
+  })
+  .then(data => {
+    rpgLayer = L.geoJSON(data, {
+      style: styleCommune,
+      onEachFeature: onEachCommune
     }).addTo(map);
+    map.fitBounds(rpgLayer.getBounds());
+  })
+  .catch(err => {
+    console.error('Erreur chargement BD RPG:', err);
+    document.getElementById('commune-info').innerHTML = `
+      <div class="info-placeholder">
+        <div class="icon" style="color:var(--danger)">⚠</div>
+        Fichier data/communes_rpg.geojson<br>introuvable
+      </div>`;
+  });
 
-    // Exemple : ajouter un marqueur
-    L.marker([48.57, 7.75])
-      .addTo(map)
-      .bindPopup("Bonjour depuis Strasbourg !")
-      .openPopup();
-  </script>
+// Toggle couche
+const toggleBox = document.getElementById('toggle-rpg-box');
+let rpgVisible = true;
+document.getElementById('toggle-rpg').addEventListener('click', () => {
+  if (!rpgLayer) return;
+  if (rpgVisible) {
+    map.removeLayer(rpgLayer);
+    toggleBox.classList.remove('active');
+  } else {
+    rpgLayer.addTo(map);
+    toggleBox.classList.add('active');
+  }
+  rpgVisible = !rpgVisible;
+});
+
+</script>
 </body>
 </html>
-```
-
-Clique sur **"Commit changes"** pour sauvegarder.
-
----
-
-## 4. Activer GitHub Pages
-1. Va dans **Settings** de ton dépôt
-2. Dans le menu gauche, clique sur **Pages**
-3. Sous *"Branch"*, sélectionne **main** et le dossier **/ (root)**
-4. Clique sur **Save**
-
----
-
-## 5. Accéder à ta webmap
-Après quelques secondes, GitHub te donne une URL du type :
-```
-https://ton-username.github.io/ma-webmap/
