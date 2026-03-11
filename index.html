@@ -251,14 +251,16 @@
 
     /* Labels villes principales */
     .ville-label {
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
+      background: #fff !important;
+      border: 1px solid #ccc !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+      border-radius: 3px !important;
+      padding: 2px 6px !important;
       font-family: 'Syne', sans-serif !important;
       font-size: 11px !important;
       font-weight: 700 !important;
-      color: #fff !important;
-      text-shadow: 0 1px 3px #000, 0 0 6px #000 !important;
+      color: #111 !important;
+      text-shadow: none !important;
       letter-spacing: 0.06em !important;
       white-space: nowrap !important;
     }
@@ -388,7 +390,7 @@ function styleCommune(feature) {
     weight: 1.2,
     opacity: 0.6,
     fillColor: '#ffffff',
-    fillOpacity: 0.15
+    fillOpacity: 0.75
   };
 }
 
@@ -397,7 +399,7 @@ function highlightCommune(e) {
     weight: 2,
     color: '#58a6ff',
     fillColor: '#ffffff',
-    fillOpacity: 0.3
+    fillOpacity: 0.5
   });
 }
 
