@@ -322,8 +322,8 @@
         <span>Communes BD RPG</span>
       </label>
       <label class="layer-toggle" id="toggle-labels">
-        <div class="toggle-box" id="toggle-labels-box"></div>
-        <span>Noms des communes</span>
+        <div class="toggle-box active" id="toggle-labels-box"></div>
+        <span>Villes principales</span>
       </label>
     </div>
 
@@ -604,7 +604,6 @@ fetch('data/communes_rpg.geojson')
       onEachFeature: onEachCommune
     }).addTo(map);
     map.fitBounds(rpgLayer.getBounds());
-    buildLabelsLayer(data);
   })
   .catch(err => {
     console.error('Erreur chargement BD RPG:', err);
@@ -616,7 +615,7 @@ fetch('data/communes_rpg.geojson')
   });
 
 // ─────────────────────────────────────────
-// MARQUEURS VILLES PRINCIPALES
+// MARQUEURS VILLES PRINCIPALES (togglables)
 // ─────────────────────────────────────────
 const VILLES = [
   { nom: "Nancy",       lat: 48.6921,  lng: 6.1844  },
@@ -638,56 +637,28 @@ const villeIcon = L.divIcon({
   iconAnchor: [5, 5]
 });
 
-VILLES.forEach(v => {
+const villesMarkers = VILLES.map(v =>
   L.marker([v.lat, v.lng], { icon: villeIcon })
-    .addTo(map)
     .bindTooltip(v.nom, {
       permanent: true,
       direction: 'top',
       offset: [0, -8],
       className: 'ville-label'
-    });
-});
+    })
+);
+const villesLayer = L.layerGroup(villesMarkers).addTo(map);
 
-
-// ─────────────────────────────────────────
-// LABELS NOMS DES COMMUNES
-// ─────────────────────────────────────────
-let labelsLayer = null;
-let labelsVisible = false;
+let villesVisible = true;
 const toggleLabelsBox = document.getElementById('toggle-labels-box');
-
-function buildLabelsLayer(geojsonData) {
-  const markers = [];
-  geojsonData.features.forEach(feature => {
-    const p = feature.properties;
-    const nom = p.nom || p.NOM_COM || p.name || '';
-    if (!nom) return;
-    const tmpLayer = L.geoJSON(feature);
-    const center = tmpLayer.getBounds().getCenter();
-    markers.push(L.marker(center, {
-      icon: L.divIcon({
-        className: 'commune-label',
-        html: nom,
-        iconAnchor: null
-      }),
-      interactive: false
-    }));
-  });
-  // Créer le layerGroup SANS l'ajouter à la carte
-  labelsLayer = L.layerGroup(markers);
-}
-
 document.getElementById('toggle-labels').addEventListener('click', () => {
-  if (!labelsLayer) return;
-  if (labelsVisible) {
-    map.removeLayer(labelsLayer);
+  if (villesVisible) {
+    map.removeLayer(villesLayer);
     toggleLabelsBox.classList.remove('active');
   } else {
-    labelsLayer.addTo(map);
+    villesLayer.addTo(map);
     toggleLabelsBox.classList.add('active');
   }
-  labelsVisible = !labelsVisible;
+  villesVisible = !villesVisible;
 });
 
 // ─────────────────────────────────────────
