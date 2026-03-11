@@ -251,20 +251,41 @@
 
     /* Labels villes principales */
     .ville-label {
-      background: #fff !important;
-      border: 1px solid #ccc !important;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
-      border-radius: 3px !important;
-      padding: 2px 6px !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
       font-family: 'Syne', sans-serif !important;
       font-size: 11px !important;
       font-weight: 700 !important;
       color: #111 !important;
-      text-shadow: none !important;
+      text-shadow:
+        -1px -1px 0 #fff,
+         1px -1px 0 #fff,
+        -1px  1px 0 #fff,
+         1px  1px 0 #fff !important;
       letter-spacing: 0.06em !important;
       white-space: nowrap !important;
     }
     .ville-label::before { display: none !important; }
+
+    /* Labels noms communes */
+    .commune-label {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      font-family: 'DM Mono', monospace !important;
+      font-size: 9px !important;
+      font-weight: 400 !important;
+      color: #111 !important;
+      text-shadow:
+        -1px -1px 0 #fff,
+         1px -1px 0 #fff,
+        -1px  1px 0 #fff,
+         1px  1px 0 #fff !important;
+      white-space: nowrap !important;
+      pointer-events: none !important;
+    }
+    .commune-label::before { display: none !important; }
   </style>
 </head>
 <body>
@@ -299,6 +320,10 @@
       <label class="layer-toggle" id="toggle-rpg">
         <div class="toggle-box active" id="toggle-rpg-box"></div>
         <span>Communes BD RPG</span>
+      </label>
+      <label class="layer-toggle" id="toggle-labels">
+        <div class="toggle-box" id="toggle-labels-box"></div>
+        <span>Noms des communes</span>
       </label>
     </div>
 
@@ -486,6 +511,7 @@ fetch('data/communes_rpg.geojson')
       onEachFeature: onEachCommune
     }).addTo(map);
     map.fitBounds(rpgLayer.getBounds());
+    buildLabelsLayer(data);
   })
   .catch(err => {
     console.error('Erreur chargement BD RPG:', err);
@@ -531,7 +557,47 @@ VILLES.forEach(v => {
 });
 
 
-const toggleBox = document.getElementById('toggle-rpg-box');
+// ─────────────────────────────────────────
+// LABELS NOMS DES COMMUNES
+// ─────────────────────────────────────────
+let labelsLayer = null;
+let labelsVisible = false;
+const toggleLabelsBox = document.getElementById('toggle-labels-box');
+
+function buildLabelsLayer(geojsonData) {
+  labelsLayer = L.geoJSON(geojsonData, {
+    pointToLayer: () => null,
+    style: () => ({ stroke: false, fill: false }),
+    onEachFeature: (feature, layer) => {
+      const p = feature.properties;
+      const nom = p.nom || p.NOM_COM || p.name || '';
+      if (!nom) return;
+      const center = layer.getBounds().getCenter();
+      L.marker(center, {
+        icon: L.divIcon({
+          className: 'commune-label',
+          html: nom,
+          iconAnchor: null
+        }),
+        interactive: false
+      }).addTo(labelsLayer);
+    }
+  });
+}
+
+document.getElementById('toggle-labels').addEventListener('click', () => {
+  if (!labelsLayer) return;
+  if (labelsVisible) {
+    map.removeLayer(labelsLayer);
+    toggleLabelsBox.classList.remove('active');
+  } else {
+    labelsLayer.addTo(map);
+    toggleLabelsBox.classList.add('active');
+  }
+  labelsVisible = !labelsVisible;
+});
+
+
 let rpgVisible = true;
 document.getElementById('toggle-rpg').addEventListener('click', () => {
   if (!rpgLayer) return;
