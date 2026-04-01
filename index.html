@@ -151,7 +151,131 @@
     .basemap-btn:hover { border-color: var(--accent2); color: var(--text); }
     .basemap-btn.active { border-color: var(--accent2); color: var(--accent2); background: rgba(88,166,255,0.08); }
 
-    /* Info commune */
+    /* ── ONGLETS MODE ── */
+    .mode-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: 'DM Mono', monospace;
+    }
+    .mode-tab:hover { color: var(--text); }
+    .mode-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── PANNEAU CULTURES ── */
+    #cultures-panel {
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+    }
+    #cultures-panel.visible {
+      display: flex;
+    }
+
+    /* Grand types */
+    .grand-type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .grand-type-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      padding: 7px 6px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .grand-type-btn:hover { border-color: var(--text); color: var(--text); }
+    .grand-type-btn.active {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .grand-type-btn .gt-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Sous-filtres cultures */
+    #sub-cultures-section {
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    #sub-cultures-section::-webkit-scrollbar { width: 3px; }
+    #sub-cultures-section::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .culture-chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .culture-chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      padding: 4px 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .culture-chip:hover { color: var(--text); border-color: var(--text); }
+    .culture-chip.active {
+      color: var(--bg);
+      font-weight: bold;
+    }
+
+    /* Légende cultures */
+    #culture-legend {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .legend-culture-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .legend-culture-swatch {
+      width: 14px; height: 14px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Info commune scrollable */
     #commune-info {
       flex: 1;
       overflow-y: auto;
@@ -160,6 +284,21 @@
     #commune-info::-webkit-scrollbar { width: 4px; }
     #commune-info::-webkit-scrollbar-track { background: var(--bg); }
     #commune-info::-webkit-scrollbar-thumb { background: var(--border); }
+
+    /* ── SAU PANEL ── */
+    #sau-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    /* Légende SAU */
+    #sau-legend {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
 
     .info-placeholder {
       color: var(--muted);
@@ -249,7 +388,6 @@
     }
     .leaflet-control-attribution a { color: var(--accent2) !important; }
 
-    /* Labels villes principales */
     .ville-label {
       background: transparent !important;
       border: none !important;
@@ -259,29 +397,23 @@
       font-weight: 700 !important;
       color: #111 !important;
       text-shadow:
-        -1px -1px 0 #fff,
-         1px -1px 0 #fff,
-        -1px  1px 0 #fff,
-         1px  1px 0 #fff !important;
+        -1px -1px 0 #fff,  1px -1px 0 #fff,
+        -1px  1px 0 #fff,  1px  1px 0 #fff !important;
       letter-spacing: 0.06em !important;
       white-space: nowrap !important;
     }
     .ville-label::before { display: none !important; }
 
-    /* Labels noms communes */
     .commune-label {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
       font-family: 'DM Mono', monospace !important;
       font-size: 9px !important;
-      font-weight: 400 !important;
       color: #111 !important;
       text-shadow:
-        -1px -1px 0 #fff,
-         1px -1px 0 #fff,
-        -1px  1px 0 #fff,
-         1px  1px 0 #fff !important;
+        -1px -1px 0 #fff,  1px -1px 0 #fff,
+        -1px  1px 0 #fff,  1px  1px 0 #fff !important;
       white-space: nowrap !important;
       pointer-events: none !important;
     }
@@ -327,65 +459,80 @@
       </label>
     </div>
 
-    <!-- Légende -->
-    <div class="panel-section">
-      <div class="panel-label">% SAU / surface commune</div>
-      <div style="display:flex; flex-direction:column; gap:4px;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div style="width:14px;height:14px;background:#1a5c28;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
-          <span style="font-size:10px;color:var(--text)">≥ 80%</span>
+    <!-- Onglets de mode -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-sau">% SAU</button>
+      <button class="mode-tab" id="tab-cultures">Cultures</button>
+    </div>
+
+    <!-- ══ PANNEAU SAU ══ -->
+    <div id="sau-panel">
+      <div id="sau-legend">
+        <div class="panel-label">% SAU / surface commune</div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;background:#1a5c28;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div><span style="font-size:10px;color:var(--text)">≥ 80%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;background:#2d7a3a;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div><span style="font-size:10px;color:var(--text)">60 – 80%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;background:#4d9b5e;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div><span style="font-size:10px;color:var(--text)">40 – 60%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;background:#90c49a;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div><span style="font-size:10px;color:var(--text)">20 – 40%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;background:#d4edda;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div><span style="font-size:10px;color:var(--text)">0 – 20%</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;background:#f5f5f5;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div><span style="font-size:10px;color:var(--muted)">Aucune donnée</span></div>
         </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div style="width:14px;height:14px;background:#2d7a3a;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
-          <span style="font-size:10px;color:var(--text)">60 – 80%</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div style="width:14px;height:14px;background:#4d9b5e;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
-          <span style="font-size:10px;color:var(--text)">40 – 60%</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div style="width:14px;height:14px;background:#90c49a;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
-          <span style="font-size:10px;color:var(--text)">20 – 40%</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div style="width:14px;height:14px;background:#d4edda;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
-          <span style="font-size:10px;color:var(--text)">0 – 20%</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div style="width:14px;height:14px;background:#f5f5f5;border:1px solid #30363d;border-radius:2px;flex-shrink:0"></div>
-          <span style="font-size:10px;color:var(--muted)">Aucune donnée</span>
+      </div>
+      <div id="commune-info">
+        <div class="info-placeholder">
+          <div class="icon">⬡</div>
+          Cliquez sur une commune<br>pour afficher ses données agricoles
         </div>
       </div>
     </div>
 
-    <!-- Info commune -->
-    <div id="commune-info">
-      <div class="info-placeholder">
-        <div class="icon">⬡</div>
-        Cliquez sur une commune<br>pour afficher ses données agricoles
+    <!-- ══ PANNEAU CULTURES ══ -->
+    <div id="cultures-panel">
+
+      <!-- Grand types -->
+      <div class="panel-section">
+        <div class="panel-label">Grand type de culture</div>
+        <div class="grand-type-grid" id="grand-type-grid">
+          <!-- généré en JS -->
+        </div>
       </div>
+
+      <!-- Cultures détaillées -->
+      <div id="sub-cultures-section" style="display:none;">
+        <div class="panel-label" id="sub-cultures-label">Cultures</div>
+        <div class="culture-chip-grid" id="culture-chip-grid">
+          <!-- généré en JS -->
+        </div>
+      </div>
+
+      <!-- Légende dynamique -->
+      <div id="culture-legend" style="display:none;">
+        <div class="panel-label">Légende</div>
+        <div id="culture-legend-content"></div>
+      </div>
+
     </div>
 
-  </div>
-</div>
+  </div><!-- /panel -->
+</div><!-- /main -->
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 
-// ─────────────────────────────────────────
-// CORRESPONDANCE CODES CULTURES BD RPG
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
+// CODES CULTURES BD RPG
+// ═══════════════════════════════════════════
 const CULTURES = {
-  "1":  "Céréales",
+  "1":  "Céréales (autres)",
   "11": "Blé tendre",
-  "15": "Maïs grain",
+  "15": "Maïs grain/ensilage",
   "16": "Orge",
   "17": "Autres céréales",
   "18": "Colza",
   "19": "Tournesol",
   "2":  "Protéagineux",
   "20": "Autres oléagineux",
-  "21": "Légumineuses",
+  "21": "Légumineuses fourragères",
   "22": "Fourrage",
   "24": "Prairie permanente",
   "25": "Prairie temporaire",
@@ -399,9 +546,69 @@ const CULTURES = {
   "9":  "Autre"
 };
 
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
+// CLASSIFICATION PAR GRAND TYPE
+// couleur = palette distincte par type
+// ═══════════════════════════════════════════
+const GRAND_TYPES = [
+  {
+    id: "cereales",
+    label: "Grandes cultures céréalières",
+    color: "#d4a843",        // ocre/blé
+    colorMuted: "rgba(212,168,67,0.18)",
+    codes: ["11","15","16","17","1"]
+  },
+  {
+    id: "oleagineux",
+    label: "Oléoprotéagineux",
+    color: "#c7d43b",        // jaune-vert colza
+    colorMuted: "rgba(199,212,59,0.18)",
+    codes: ["18","19","20","2"]
+  },
+  {
+    id: "herbages",
+    label: "Herbages & élevage",
+    color: "#3fb950",        // vert prairie
+    colorMuted: "rgba(63,185,80,0.18)",
+    codes: ["24","25","22","21","5"]
+  },
+  {
+    id: "fruits",
+    label: "Fruits & arboriculture",
+    color: "#e07b39",        // orange
+    colorMuted: "rgba(224,123,57,0.18)",
+    codes: ["4","3"]
+  },
+  {
+    id: "maraichage",
+    label: "Maraîchage & horticulture",
+    color: "#58a6ff",        // bleu
+    colorMuted: "rgba(88,166,255,0.18)",
+    codes: ["28","9"]
+  },
+  {
+    id: "autres",
+    label: "Autres / Divers",
+    color: "#8b949e",        // gris
+    colorMuted: "rgba(139,148,158,0.18)",
+    codes: ["6","7","8"]
+  }
+];
+
+// Lookup rapide : code → grand type
+const CODE_TO_GT = {};
+GRAND_TYPES.forEach(gt => gt.codes.forEach(c => CODE_TO_GT[c] = gt));
+
+// ═══════════════════════════════════════════
+// ÉTAT FILTRES
+// ═══════════════════════════════════════════
+let currentMode = 'sau';          // 'sau' | 'grandtype' | 'culture'
+let activeGrandType = null;       // objet GRAND_TYPES
+let activeCulture   = null;       // code culture string
+
+// ═══════════════════════════════════════════
 // CARTE
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
 const map = L.map('map', { zoomControl: true }).setView([48.4, 6.2], 9);
 
 const baseMaps = {
@@ -421,10 +628,8 @@ const baseMaps = {
     attribution: '© IGN-Géoplateforme', maxZoom: 19
   })
 };
-
 baseMaps.osm.addTo(map);
 
-// Boutons fonds de carte
 document.querySelectorAll('.basemap-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const key = btn.dataset.bm;
@@ -435,17 +640,11 @@ document.querySelectorAll('.basemap-btn').forEach(btn => {
   });
 });
 
-// ─────────────────────────────────────────
-// COUCHE BD RPG
-// ─────────────────────────────────────────
-let rpgLayer = null;
-
-// ─────────────────────────────────────────
-// CALCUL SURFACE GÉODÉSIQUE (m²) depuis GeoJSON
-// Formule de Shoelace adaptée aux coordonnées géographiques
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
+// SURFACE GÉODÉSIQUE
+// ═══════════════════════════════════════════
 function geojsonAreaHa(geometry) {
-  const R = 6371000; // rayon terre en mètres
+  const R = 6371000;
   function ringArea(coords) {
     let area = 0;
     const n = coords.length;
@@ -463,12 +662,31 @@ function geojsonAreaHa(geometry) {
   } else if (geometry.type === 'MultiPolygon') {
     for (const poly of geometry.coordinates) total += ringArea(poly[0]);
   }
-  return total / 10000; // m² → ha
+  return total / 10000;
 }
 
-// ─────────────────────────────────────────
-// GRADIENT VERT selon % SAU
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
+// HELPERS CULTURES
+// ═══════════════════════════════════════════
+
+// Retourne la culture majoritaire d'une commune {code, label, val}
+function getCultureMajoritaire(p) {
+  let best = null, bestVal = 0;
+  for (const code of Object.keys(CULTURES)) {
+    const v = Number(p['rpg_' + code] || 0);
+    if (v > bestVal) { bestVal = v; best = code; }
+  }
+  return best ? { code: best, label: CULTURES[best], val: bestVal } : null;
+}
+
+// Surface totale d'un grand type pour une commune
+function getSurfGrandType(p, gt) {
+  return gt.codes.reduce((sum, c) => sum + Number(p['rpg_' + c] || 0), 0);
+}
+
+// ═══════════════════════════════════════════
+// STYLE SAU (mode % SAU)
+// ═══════════════════════════════════════════
 function getPctSAU(feature) {
   const p = feature.properties;
   const surf = Number(p.rpg_surf_ha || 0);
@@ -479,7 +697,6 @@ function getPctSAU(feature) {
 }
 
 function sauColor(pct) {
-  // Blanc → vert pâle → vert moyen → vert foncé
   if (pct <= 0)  return { fill: '#f5f5f5', opacity: 0.7 };
   if (pct < 20)  return { fill: '#d4edda', opacity: 0.75 };
   if (pct < 40)  return { fill: '#90c49a', opacity: 0.80 };
@@ -488,53 +705,76 @@ function sauColor(pct) {
   return               { fill: '#1a5c28', opacity: 0.90 };
 }
 
+// ═══════════════════════════════════════════
+// STYLE DYNAMIQUE selon le mode actif
+// ═══════════════════════════════════════════
 function styleCommune(feature) {
+  const p = feature.properties;
+
+  // ── Mode : culture précise ──
+  if (currentMode === 'culture' && activeCulture) {
+    const cult = getCultureMajoritaire(p);
+    const isMatch = cult && cult.code === activeCulture;
+    const gt = CODE_TO_GT[activeCulture] || { color: '#8b949e' };
+    return {
+      color: '#000',
+      weight: isMatch ? 2 : 0.8,
+      opacity: isMatch ? 0.9 : 0.4,
+      fillColor: isMatch ? gt.color : '#1a1f26',
+      fillOpacity: isMatch ? 0.85 : 0.25
+    };
+  }
+
+  // ── Mode : grand type ──
+  if (currentMode === 'grandtype' && activeGrandType) {
+    const cult = getCultureMajoritaire(p);
+    const isMatch = cult && CODE_TO_GT[cult.code] && CODE_TO_GT[cult.code].id === activeGrandType.id;
+    return {
+      color: '#000',
+      weight: isMatch ? 2 : 0.8,
+      opacity: isMatch ? 0.9 : 0.4,
+      fillColor: isMatch ? activeGrandType.color : '#1a1f26',
+      fillOpacity: isMatch ? 0.85 : 0.25
+    };
+  }
+
+  // ── Mode SAU (défaut) ──
   const pct = getPctSAU(feature);
   const { fill, opacity } = sauColor(pct);
-  return {
-    color: '#000000',
-    weight: 1.2,
-    opacity: 0.6,
-    fillColor: fill,
-    fillOpacity: opacity
-  };
+  return { color: '#000000', weight: 1.2, opacity: 0.6, fillColor: fill, fillOpacity: opacity };
 }
+
+// ═══════════════════════════════════════════
+// POPUP COMMUNE
+// ═══════════════════════════════════════════
+let rpgLayer = null;
 
 function highlightCommune(e) {
-  e.target.setStyle({
-    weight: 2.5,
-    color: '#58a6ff',
-    fillOpacity: 0.95
-  });
+  e.target.setStyle({ weight: 2.5, color: '#58a6ff', fillOpacity: 0.95 });
 }
-
 function resetHighlight(e) {
   rpgLayer.resetStyle(e.target);
 }
 
 function showCommuneInfo(feature) {
   const p = feature.properties;
-  const nom = p.nom || p.NOM_COM || p.name || '—';
+  const nom  = p.nom  || p.NOM_COM || p.name || '—';
   const code = p.code || p.INSEE_COM || p.CODE_INSEE || '—';
-  const surf = p.rpg_surf_ha != null ? Number(p.rpg_surf_ha).toLocaleString('fr-FR', {maximumFractionDigits: 1}) : '—';
+  const surf = p.rpg_surf_ha != null ? Number(p.rpg_surf_ha).toLocaleString('fr-FR', {maximumFractionDigits:1}) : '—';
   const nb   = p.rpg_nb_parc != null ? Number(p.rpg_nb_parc).toLocaleString('fr-FR') : '—';
 
-  // % SAU recalculé proprement
   const communeHa = geojsonAreaHa(feature.geometry);
   const surfNum   = Number(p.rpg_surf_ha || 0);
   const pctSAU    = communeHa > 0 ? Math.min((surfNum / communeHa) * 100, 100).toFixed(1) : '—';
-  const communeHaStr = communeHa > 0 ? communeHa.toLocaleString('fr-FR', {maximumFractionDigits: 0}) : '—';
+  const communeHaStr = communeHa > 0 ? communeHa.toLocaleString('fr-FR', {maximumFractionDigits:0}) : '—';
 
-  // Collecte des cultures non nulles
   const cultureData = [];
   let maxSurf = 0;
   for (const [code_c, label] of Object.entries(CULTURES)) {
-    const key = 'rpg_' + code_c;
-    const val = p[key];
-    if (val && Number(val) > 0) {
-      const v = Number(val);
-      cultureData.push({ label, val: v });
-      if (v > maxSurf) maxSurf = v;
+    const val = Number(p['rpg_' + code_c] || 0);
+    if (val > 0) {
+      cultureData.push({ code: code_c, label, val });
+      if (val > maxSurf) maxSurf = val;
     }
   }
   cultureData.sort((a, b) => b.val - a.val);
@@ -544,14 +784,16 @@ function showCommuneInfo(feature) {
     culturesHTML = `<div class="cultures-title">Détail par culture (ha)</div>`;
     for (const c of cultureData) {
       const pctBar = maxSurf > 0 ? (c.val / maxSurf * 100).toFixed(1) : 0;
+      const gt = CODE_TO_GT[c.code];
+      const barColor = gt ? gt.color : 'var(--accent)';
       culturesHTML += `
         <div class="culture-bar-row">
           <div class="culture-bar-header">
             <span class="culture-bar-name">${c.label}</span>
-            <span class="culture-bar-val">${c.val.toLocaleString('fr-FR', {maximumFractionDigits: 1})} ha</span>
+            <span class="culture-bar-val">${c.val.toLocaleString('fr-FR', {maximumFractionDigits:1})} ha</span>
           </div>
           <div class="culture-bar-bg">
-            <div class="culture-bar-fill" style="width:${pctBar}%"></div>
+            <div class="culture-bar-fill" style="width:${pctBar}%;background:${barColor}"></div>
           </div>
         </div>`;
     }
@@ -559,6 +801,7 @@ function showCommuneInfo(feature) {
     culturesHTML = `<div class="info-placeholder" style="padding:16px 0"><span style="color:var(--muted);font-size:11px">Aucune donnée agricole</span></div>`;
   }
 
+  const sauC = sauColor(parseFloat(pctSAU));
   document.getElementById('commune-info').innerHTML = `
     <div class="commune-name">${nom}</div>
     <div class="commune-code">INSEE ${code}</div>
@@ -572,7 +815,7 @@ function showCommuneInfo(feature) {
     </div>
     <div class="stat-row">
       <span class="stat-key">% SAU</span>
-      <span class="stat-val" style="color:${sauColor(parseFloat(pctSAU)).fill === '#f5f5f5' ? 'var(--muted)' : sauColor(parseFloat(pctSAU)).fill}">${pctSAU}%</span>
+      <span class="stat-val" style="color:${sauC.fill === '#f5f5f5' ? 'var(--muted)' : sauC.fill}">${pctSAU}%</span>
     </div>
     <div class="stat-row">
       <span class="stat-key">NB PARCELLES</span>
@@ -586,27 +829,28 @@ function onEachCommune(feature, layer) {
   layer.on({
     mouseover: highlightCommune,
     mouseout: resetHighlight,
-    click: (e) => {
+    click: () => {
       showCommuneInfo(feature);
+      // Si on est sur l'onglet cultures, basculer sur SAU pour afficher l'info
+      if (currentMode !== 'sau') {
+        activateTab('sau');
+      }
     }
   });
 }
 
-// Chargement du GeoJSON
+// Chargement GeoJSON
 fetch('data/communes_rpg.geojson')
-  .then(r => {
-    if (!r.ok) throw new Error('Fichier GeoJSON introuvable');
-    return r.json();
-  })
+  .then(r => { if (!r.ok) throw new Error(); return r.json(); })
   .then(data => {
     rpgLayer = L.geoJSON(data, {
       style: styleCommune,
       onEachFeature: onEachCommune
     }).addTo(map);
     map.fitBounds(rpgLayer.getBounds());
+    buildUI(); // construction des boutons après chargement
   })
-  .catch(err => {
-    console.error('Erreur chargement BD RPG:', err);
+  .catch(() => {
     document.getElementById('commune-info').innerHTML = `
       <div class="info-placeholder">
         <div class="icon" style="color:var(--danger)">⚠</div>
@@ -614,66 +858,235 @@ fetch('data/communes_rpg.geojson')
       </div>`;
   });
 
-// ─────────────────────────────────────────
-// MARQUEURS VILLES PRINCIPALES (togglables)
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
+// CONSTRUCTION UI CULTURES
+// ═══════════════════════════════════════════
+function buildUI() {
+  const grid = document.getElementById('grand-type-grid');
+  grid.innerHTML = '';
+
+  GRAND_TYPES.forEach(gt => {
+    const btn = document.createElement('button');
+    btn.className = 'grand-type-btn';
+    btn.dataset.id = gt.id;
+    btn.innerHTML = `
+      <div class="gt-dot" style="background:${gt.color};box-shadow:0 0 5px ${gt.color}"></div>
+      ${gt.label}`;
+    btn.addEventListener('click', () => selectGrandType(gt));
+    grid.appendChild(btn);
+  });
+}
+
+function selectGrandType(gt) {
+  // Désélectionner si déjà actif → retour au mode grand type "tous"
+  if (activeGrandType && activeGrandType.id === gt.id) {
+    activeGrandType = null;
+    activeCulture   = null;
+    currentMode     = 'sau';
+    document.querySelectorAll('.grand-type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.culture-chip').forEach(b => b.classList.remove('active'));
+    document.getElementById('sub-cultures-section').style.display = 'none';
+    document.getElementById('culture-legend').style.display = 'none';
+    refreshLayer();
+    return;
+  }
+
+  activeGrandType = gt;
+  activeCulture   = null;
+  currentMode     = 'grandtype';
+
+  // Boutons grand type
+  document.querySelectorAll('.grand-type-btn').forEach(b => {
+    const isActive = b.dataset.id === gt.id;
+    b.classList.toggle('active', isActive);
+    b.style.borderColor   = isActive ? gt.color : '';
+    b.style.background    = isActive ? gt.colorMuted : '';
+    b.style.color         = isActive ? gt.color : '';
+  });
+
+  // Chips cultures détaillées
+  const chipGrid  = document.getElementById('culture-chip-grid');
+  const subSection = document.getElementById('sub-cultures-section');
+  const subLabel  = document.getElementById('sub-cultures-label');
+  chipGrid.innerHTML = '';
+  subLabel.textContent = gt.label + ' — détail';
+
+  gt.codes.forEach(code => {
+    const chip = document.createElement('button');
+    chip.className = 'culture-chip';
+    chip.dataset.code = code;
+    chip.textContent = CULTURES[code] || code;
+    chip.style.setProperty('--chip-color', gt.color);
+    chip.addEventListener('click', () => selectCulture(code, gt));
+    chipGrid.appendChild(chip);
+  });
+  subSection.style.display = 'block';
+
+  // Légende grand type
+  showLegendGrandType(gt);
+  refreshLayer();
+}
+
+function selectCulture(code, gt) {
+  // Toggle
+  if (activeCulture === code) {
+    activeCulture = null;
+    currentMode   = 'grandtype';
+    document.querySelectorAll('.culture-chip').forEach(b => b.classList.remove('active'));
+    showLegendGrandType(gt);
+    refreshLayer();
+    return;
+  }
+
+  activeCulture = code;
+  currentMode   = 'culture';
+
+  document.querySelectorAll('.culture-chip').forEach(b => {
+    const isActive = b.dataset.code === code;
+    b.classList.toggle('active', isActive);
+    if (isActive) {
+      b.style.background  = gt.color;
+      b.style.borderColor = gt.color;
+      b.style.color       = '#0d1117';
+    } else {
+      b.style.background  = '';
+      b.style.borderColor = '';
+      b.style.color       = '';
+    }
+  });
+
+  showLegendCulture(code, gt);
+  refreshLayer();
+}
+
+// ── Légende grand type ──
+function showLegendGrandType(gt) {
+  const legend = document.getElementById('culture-legend');
+  const content = document.getElementById('culture-legend-content');
+  legend.style.display = 'block';
+  content.innerHTML = `
+    <div class="legend-culture-row">
+      <div class="legend-culture-swatch" style="background:${gt.color}"></div>
+      <span style="font-size:10px;color:var(--text)">Communes dont la culture<br>majoritaire appartient à<br><strong style="color:${gt.color}">${gt.label}</strong></span>
+    </div>
+    <div class="legend-culture-row" style="margin-top:8px">
+      <div class="legend-culture-swatch" style="background:#1a1f26"></div>
+      <span style="font-size:10px;color:var(--muted)">Autre type majoritaire</span>
+    </div>
+  `;
+}
+
+// ── Légende culture précise ──
+function showLegendCulture(code, gt) {
+  const legend  = document.getElementById('culture-legend');
+  const content = document.getElementById('culture-legend-content');
+  legend.style.display = 'block';
+  content.innerHTML = `
+    <div class="legend-culture-row">
+      <div class="legend-culture-swatch" style="background:${gt.color}"></div>
+      <span style="font-size:10px;color:var(--text)">Communes dont la culture<br>majoritaire est<br><strong style="color:${gt.color}">${CULTURES[code]}</strong></span>
+    </div>
+    <div class="legend-culture-row" style="margin-top:8px">
+      <div class="legend-culture-swatch" style="background:#1a1f26"></div>
+      <span style="font-size:10px;color:var(--muted)">Autre culture majoritaire</span>
+    </div>
+  `;
+}
+
+// ── Re-style du layer ──
+function refreshLayer() {
+  if (!rpgLayer) return;
+  rpgLayer.setStyle(styleCommune);
+}
+
+// ═══════════════════════════════════════════
+// ONGLETS SAU / CULTURES
+// ═══════════════════════════════════════════
+function activateTab(tab) {
+  const sauPanel      = document.getElementById('sau-panel');
+  const culturesPanel = document.getElementById('cultures-panel');
+  const tabSau        = document.getElementById('tab-sau');
+  const tabCultures   = document.getElementById('tab-cultures');
+
+  if (tab === 'sau') {
+    sauPanel.style.display      = 'flex';
+    culturesPanel.style.display = 'none';
+    tabSau.classList.add('active');
+    tabCultures.classList.remove('active');
+    // Retour au style SAU si on revient sur cet onglet
+    if (currentMode !== 'sau') {
+      currentMode = 'sau';
+      refreshLayer();
+    }
+  } else {
+    sauPanel.style.display      = 'none';
+    culturesPanel.style.display = 'flex';
+    tabCultures.classList.add('active');
+    tabSau.classList.remove('active');
+    // Rétablit le mode culture si un filtre était actif
+    if (activeCulture) currentMode = 'culture';
+    else if (activeGrandType) currentMode = 'grandtype';
+    // sinon on laisse sau mais sans re-style (la carte reste en SAU jusqu'à un clic)
+    if (activeGrandType) refreshLayer();
+  }
+}
+
+document.getElementById('tab-sau').addEventListener('click', () => activateTab('sau'));
+document.getElementById('tab-cultures').addEventListener('click', () => {
+  activateTab('cultures');
+  if (!activeGrandType) {
+    // Premier accès : style SAU conservé, invite à choisir
+    currentMode = 'sau';
+    refreshLayer();
+  }
+});
+
+// ═══════════════════════════════════════════
+// VILLES PRINCIPALES
+// ═══════════════════════════════════════════
 const VILLES = [
-  { nom: "Nancy",       lat: 48.6921,  lng: 6.1844  },
-  { nom: "Épinal",      lat: 48.1741,  lng: 6.4508  },
-  { nom: "Saint-Dié",   lat: 48.2842,  lng: 6.9508  },
-  { nom: "Bar-le-Duc",  lat: 48.7731,  lng: 5.1608  }
+  { nom: "Nancy",      lat: 48.6921, lng: 6.1844 },
+  { nom: "Épinal",     lat: 48.1741, lng: 6.4508 },
+  { nom: "Saint-Dié",  lat: 48.2842, lng: 6.9508 },
+  { nom: "Bar-le-Duc", lat: 48.7731, lng: 5.1608 }
 ];
 
 const villeIcon = L.divIcon({
   className: '',
-  html: `<div style="
-    width:10px; height:10px;
-    background:#fff;
-    border:2px solid #000;
-    border-radius:50%;
-    box-shadow:0 0 0 1px rgba(255,255,255,0.4);
-  "></div>`,
-  iconSize: [10, 10],
-  iconAnchor: [5, 5]
+  html: `<div style="width:10px;height:10px;background:#fff;border:2px solid #000;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,0.4);"></div>`,
+  iconSize: [10, 10], iconAnchor: [5, 5]
 });
 
 const villesMarkers = VILLES.map(v =>
   L.marker([v.lat, v.lng], { icon: villeIcon })
-    .bindTooltip(v.nom, {
-      permanent: true,
-      direction: 'top',
-      offset: [0, -8],
-      className: 'ville-label'
-    })
+    .bindTooltip(v.nom, { permanent: true, direction: 'top', offset: [0, -8], className: 'ville-label' })
 );
 const villesLayer = L.layerGroup(villesMarkers).addTo(map);
 
 let villesVisible = true;
-const toggleLabelsBox = document.getElementById('toggle-labels-box');
 document.getElementById('toggle-labels').addEventListener('click', () => {
   if (villesVisible) {
     map.removeLayer(villesLayer);
-    toggleLabelsBox.classList.remove('active');
+    document.getElementById('toggle-labels-box').classList.remove('active');
   } else {
     villesLayer.addTo(map);
-    toggleLabelsBox.classList.add('active');
+    document.getElementById('toggle-labels-box').classList.add('active');
   }
   villesVisible = !villesVisible;
 });
 
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
 // TOGGLE COUCHE BD RPG
-// ─────────────────────────────────────────
+// ═══════════════════════════════════════════
 let rpgVisible = true;
-const toggleRpgBox = document.getElementById('toggle-rpg-box');
 document.getElementById('toggle-rpg').addEventListener('click', () => {
   if (!rpgLayer) return;
   if (rpgVisible) {
     map.removeLayer(rpgLayer);
-    toggleRpgBox.classList.remove('active');
+    document.getElementById('toggle-rpg-box').classList.remove('active');
   } else {
     rpgLayer.addTo(map);
-    toggleRpgBox.classList.add('active');
+    document.getElementById('toggle-rpg-box').classList.add('active');
   }
   rpgVisible = !rpgVisible;
 });
