@@ -107,7 +107,7 @@
       margin-bottom: 10px;
     }
 
-    /* Légende couches */
+    /* Couches */
     .layer-toggle {
       display: flex;
       align-items: center;
@@ -403,21 +403,6 @@
       white-space: nowrap !important;
     }
     .ville-label::before { display: none !important; }
-
-    .commune-label {
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      font-family: 'DM Mono', monospace !important;
-      font-size: 9px !important;
-      color: #111 !important;
-      text-shadow:
-        -1px -1px 0 #fff,  1px -1px 0 #fff,
-        -1px  1px 0 #fff,  1px  1px 0 #fff !important;
-      white-space: nowrap !important;
-      pointer-events: none !important;
-    }
-    .commune-label::before { display: none !important; }
   </style>
 </head>
 <body>
@@ -520,91 +505,181 @@
 <script>
 
 // ═══════════════════════════════════════════
-// CODES CULTURES BD RPG
+// NOMENCLATURE BD RPG 2.0 — codes → libellés
+// Seuls les codes présents dans le GeoJSON sont listés
 // ═══════════════════════════════════════════
 const CULTURES = {
-  "1":  "Céréales (autres)",
-  "11": "Blé tendre",
-  "15": "Maïs grain/ensilage",
-  "16": "Orge",
-  "17": "Autres céréales",
-  "18": "Colza",
-  "19": "Tournesol",
-  "2":  "Protéagineux",
-  "20": "Autres oléagineux",
-  "21": "Légumineuses fourragères",
-  "22": "Fourrage",
-  "24": "Prairie permanente",
-  "25": "Prairie temporaire",
-  "28": "Légumes / fleurs",
-  "3":  "Vigne",
-  "4":  "Verger",
-  "5":  "Estive / lande",
-  "6":  "Canne à sucre",
-  "7":  "Divers",
-  "8":  "Gel",
-  "9":  "Autre"
+  "AAR": "Autre arboriculture",
+  "ACP": "Autre culture de printemps",
+  "AFG": "Autre fourrage annuel",
+  "AIL": "Ail",
+  "AME": "Amande",
+  "ARP": "Autre plante aromatique",
+  "AVH": "Avoine d'hiver",
+  "AVP": "Avoine de printemps",
+  "BDH": "Blé dur d'hiver",
+  "BDP": "Blé dur de printemps",
+  "BFS": "Bande admissible forêt sans production",
+  "BOR": "Bordure de champ",
+  "BTA": "Bande tampon",
+  "BTH": "Blé tendre d'hiver",
+  "BTN": "Betterave non fourragère / Bette",
+  "BTP": "Blé tendre de printemps",
+  "CAG": "Autre céréale",
+  "CAR": "Carotte",
+  "CBT": "Cerise bigarreau pour transformation",
+  "CCN": "Concombre / Cornichon",
+  "CEL": "Céleri",
+  "CHU": "Chou",
+  "CHV": "Chanvre",
+  "CML": "Caméline",
+  "CPL": "Fourrage céréales/protéagineux/légumineuses",
+  "CSE": "Canne à sucre",
+  "CSS": "Culture sous serre hors sol",
+  "CTG": "Châtaigne",
+  "CZH": "Colza d'hiver",
+  "CZP": "Colza de printemps",
+  "EPE": "Épeautre",
+  "EPI": "Épinard",
+  "FLA": "Autre légume ou fruit annuel",
+  "FLP": "Autre légume ou fruit pérenne",
+  "FNU": "Fenugrec",
+  "FRA": "Fraise",
+  "FVL": "Féverole (semée avant le 31/05)",
+  "FVP": "Autre pois fourrager de printemps",
+  "HPC": "Horticulture ornementale plein champ",
+  "JAC": "Jachère",
+  "JNO": "Jachère noire",
+  "LAV": "Lavande / Lavandin",
+  "LBF": "Laitue / Batavia / Feuille de chêne",
+  "LEC": "Lentille cultivée",
+  "LIH": "Lin non textile d'hiver",
+  "LIP": "Lin non textile de printemps",
+  "LOT": "Lotier",
+  "LUZ": "Luzerne",
+  "MCR": "Mélange de céréales",
+  "MCS": "Mélange de cultures spéciales",
+  "MDI": "Maïs doux",
+  "MID": "Maïs doux",
+  "MIS": "Maïs grain/ensilage",
+  "MLC": "Mélange légumineuses/céréales/oléagineux",
+  "MLF": "Mélange de légumineuses fourragères",
+  "MLG": "Mélange légumineuses/graminées",
+  "MLT": "Millet",
+  "MOH": "Moha",
+  "MOT": "Moutarde",
+  "MPC": "Mélange protéagineux/céréales",
+  "MSW": "Miscanthus",
+  "NOS": "Noisette",
+  "NOX": "Noix",
+  "NVT": "Navet",
+  "OAG": "Autre oléagineux",
+  "OIG": "Oignon / Échalote",
+  "ORH": "Orge d'hiver",
+  "ORP": "Orge de printemps",
+  "PAG": "Autre protéagineux",
+  "PCH": "Pois chiche",
+  "PEP": "Pépinière",
+  "PEV": "Pois fourrager de printemps",
+  "PFR": "Petit fruit rouge",
+  "PHI": "Pois d'hiver",
+  "PHS": "Pois fourrager d'hiver",
+  "PME": "Plante médicinale",
+  "POR": "Poireau",
+  "POT": "Potiron / Potimarron",
+  "PPH": "Prairie permanente (herbe prédominante)",
+  "PPP": "Autre plante à parfum pérenne",
+  "PPR": "Pois de printemps",
+  "PRF": "Prairie en rotation longue",
+  "PRU": "Prune d'Ente pour transformation",
+  "PTC": "Pomme de terre de consommation",
+  "PTR": "Prairie temporaire (≤ 5 ans)",
+  "PVT": "Pêche Pavie pour transformation",
+  "PWT": "Poire Williams pour transformation",
+  "RDI": "Radis",
+  "SAI": "Sainfoin",
+  "SBO": "Surface boisée sur ancienne terre agricole",
+  "SGH": "Seigle d'hiver",
+  "SNE": "Surface agricole temporairement non exploitée",
+  "SNU": "Surface non agricole",
+  "SOG": "Sorgho",
+  "SOJ": "Soja",
+  "SPH": "Surface pastorale (herbe prédominante)",
+  "SPL": "Surface pastorale (ligneux prédominants)",
+  "SRS": "Sarrasin",
+  "TCR": "Taillis à courte rotation",
+  "TOM": "Tomate",
+  "TRE": "Trèfle",
+  "TRN": "Tournesol",
+  "TRU": "Truffière",
+  "TTH": "Triticale d'hiver",
+  "TTP": "Triticale de printemps",
+  "VES": "Vesce",
+  "VRC": "Vigne (raisins de cuve)",
+  "VRG": "Verger"
 };
 
 // ═══════════════════════════════════════════
-// CLASSIFICATION PAR GRAND TYPE
-// couleur = palette distincte par type
+// GRAND TYPES — association codes → groupes
 // ═══════════════════════════════════════════
 const GRAND_TYPES = [
   {
     id: "cereales",
     label: "Grandes cultures céréalières",
-    color: "#d4a843",        // ocre/blé
+    color: "#d4a843",
     colorMuted: "rgba(212,168,67,0.18)",
-    codes: ["11","15","16","17","1"]
+    codes: ["BTH","BTP","BDH","BDP","ORH","ORP","AVH","AVP","MIS","MDI","MID","EPE","MCR","MLT","SGH","SOG","SRS","TTH","TTP","CAG"]
   },
   {
     id: "oleagineux",
     label: "Oléoprotéagineux",
-    color: "#c7d43b",        // jaune-vert colza
+    color: "#c7d43b",
     colorMuted: "rgba(199,212,59,0.18)",
-    codes: ["18","19","20","2"]
+    codes: ["CZH","CZP","TRN","SOJ","OAG","CML","LIH","LIP","PHI","PPR","FVL","PAG","PCH","LEC","MPC","CHV","MOT","FNU"]
   },
   {
     id: "herbages",
     label: "Herbages & élevage",
-    color: "#3fb950",        // vert prairie
+    color: "#3fb950",
     colorMuted: "rgba(63,185,80,0.18)",
-    codes: ["24","25","22","21","5"]
+    codes: ["PPH","PRF","PTR","SPH","SPL","LUZ","TRE","SAI","VES","LOT","MOH","MLF","MLG","MLC","CPL","AFG"]
   },
   {
     id: "fruits",
     label: "Fruits & arboriculture",
-    color: "#e07b39",        // orange
+    color: "#e07b39",
     colorMuted: "rgba(224,123,57,0.18)",
-    codes: ["4","3"]
+    codes: ["VRG","VRC","PFR","PRU","CBT","PVT","PWT","NOS","NOX","CTG","AAR","FRA","PEP","TRU"]
   },
   {
     id: "maraichage",
     label: "Maraîchage & horticulture",
-    color: "#58a6ff",        // bleu
+    color: "#58a6ff",
     colorMuted: "rgba(88,166,255,0.18)",
-    codes: ["28","9"]
+    codes: ["AIL","CAR","CCN","CEL","CHU","EPI","FLA","FLP","HPC","LBF","NVT","OIG","POR","POT","PTC","RDI","TOM","BTN","CSS","FRA","LAV","PME","ARP","PPP"]
   },
   {
     id: "autres",
     label: "Autres / Divers",
-    color: "#8b949e",        // gris
+    color: "#8b949e",
     colorMuted: "rgba(139,148,158,0.18)",
-    codes: ["6","7","8"]
+    codes: ["JAC","JNO","SNE","SNU","SBO","BOR","BTA","BFS","TCR","MSW","PEP","PPP","CSE","MCS","ACP","AME"]
   }
 ];
 
-// Lookup rapide : code → grand type
+// Lookup rapide code → grand type
 const CODE_TO_GT = {};
 GRAND_TYPES.forEach(gt => gt.codes.forEach(c => CODE_TO_GT[c] = gt));
+
+// Liste de TOUS les codes cultures présents dans le GeoJSON
+const ALL_CULTURE_CODES = Object.keys(CULTURES);
 
 // ═══════════════════════════════════════════
 // ÉTAT FILTRES
 // ═══════════════════════════════════════════
-let currentMode = 'sau';          // 'sau' | 'grandtype' | 'culture'
-let activeGrandType = null;       // objet GRAND_TYPES
-let activeCulture   = null;       // code culture string
+let currentMode    = 'sau';
+let activeGrandType = null;
+let activeCulture   = null;
 
 // ═══════════════════════════════════════════
 // CARTE
@@ -641,61 +716,48 @@ document.querySelectorAll('.basemap-btn').forEach(btn => {
 });
 
 // ═══════════════════════════════════════════
-// SURFACE GÉODÉSIQUE
+// CALCUL SAU TOTALE depuis les colonnes cultures
+// Somme toutes les colonnes de codes cultures présentes
 // ═══════════════════════════════════════════
-function geojsonAreaHa(geometry) {
-  const R = 6371000;
-  function ringArea(coords) {
-    let area = 0;
-    const n = coords.length;
-    for (let i = 0; i < n - 1; i++) {
-      const [lng1, lat1] = coords[i];
-      const [lng2, lat2] = coords[i + 1];
-      area += (lng2 - lng1) * Math.PI / 180
-            * (2 + Math.sin(lat1 * Math.PI / 180) + Math.sin(lat2 * Math.PI / 180));
-    }
-    return Math.abs(area * R * R / 2);
-  }
+function getSAU(p) {
   let total = 0;
-  if (geometry.type === 'Polygon') {
-    total = ringArea(geometry.coordinates[0]);
-  } else if (geometry.type === 'MultiPolygon') {
-    for (const poly of geometry.coordinates) total += ringArea(poly[0]);
+  for (const code of ALL_CULTURE_CODES) {
+    const v = Number(p[code] || 0);
+    if (v > 0) total += v;
   }
-  return total / 10000;
+  return total;
+}
+
+// ═══════════════════════════════════════════
+// CALCUL % SAU via superficie_cadastrale
+// ═══════════════════════════════════════════
+function getPctSAU(feature) {
+  const p = feature.properties;
+  const sau = getSAU(p);
+  const communeHa = Number(p.superficie_cadastrale || 0);
+  if (sau <= 0 || communeHa <= 0) return 0;
+  return Math.min((sau / communeHa) * 100, 100);
 }
 
 // ═══════════════════════════════════════════
 // HELPERS CULTURES
 // ═══════════════════════════════════════════
-
-// Retourne la culture majoritaire d'une commune {code, label, val}
 function getCultureMajoritaire(p) {
   let best = null, bestVal = 0;
-  for (const code of Object.keys(CULTURES)) {
-    const v = Number(p['rpg_' + code] || 0);
+  for (const code of ALL_CULTURE_CODES) {
+    const v = Number(p[code] || 0);
     if (v > bestVal) { bestVal = v; best = code; }
   }
-  return best ? { code: best, label: CULTURES[best], val: bestVal } : null;
+  return best ? { code: best, label: CULTURES[best] || best, val: bestVal } : null;
 }
 
-// Surface totale d'un grand type pour une commune
 function getSurfGrandType(p, gt) {
-  return gt.codes.reduce((sum, c) => sum + Number(p['rpg_' + c] || 0), 0);
+  return gt.codes.reduce((sum, c) => sum + Number(p[c] || 0), 0);
 }
 
 // ═══════════════════════════════════════════
-// STYLE SAU (mode % SAU)
+// COULEUR SAU
 // ═══════════════════════════════════════════
-function getPctSAU(feature) {
-  const p = feature.properties;
-  const surf = Number(p.rpg_surf_ha || 0);
-  if (surf <= 0) return 0;
-  const communeHa = geojsonAreaHa(feature.geometry);
-  if (communeHa <= 0) return 0;
-  return Math.min((surf / communeHa) * 100, 100);
-}
-
 function sauColor(pct) {
   if (pct <= 0)  return { fill: '#f5f5f5', opacity: 0.7 };
   if (pct < 20)  return { fill: '#d4edda', opacity: 0.75 };
@@ -706,46 +768,41 @@ function sauColor(pct) {
 }
 
 // ═══════════════════════════════════════════
-// STYLE DYNAMIQUE selon le mode actif
+// STYLE DYNAMIQUE
 // ═══════════════════════════════════════════
 function styleCommune(feature) {
   const p = feature.properties;
 
-  // ── Mode : culture précise ──
   if (currentMode === 'culture' && activeCulture) {
     const cult = getCultureMajoritaire(p);
     const isMatch = cult && cult.code === activeCulture;
     const gt = CODE_TO_GT[activeCulture] || { color: '#8b949e' };
     return {
-      color: '#000',
-      weight: isMatch ? 2 : 0.8,
+      color: '#000', weight: isMatch ? 2 : 0.8,
       opacity: isMatch ? 0.9 : 0.4,
       fillColor: isMatch ? gt.color : '#1a1f26',
       fillOpacity: isMatch ? 0.85 : 0.25
     };
   }
 
-  // ── Mode : grand type ──
   if (currentMode === 'grandtype' && activeGrandType) {
     const cult = getCultureMajoritaire(p);
     const isMatch = cult && CODE_TO_GT[cult.code] && CODE_TO_GT[cult.code].id === activeGrandType.id;
     return {
-      color: '#000',
-      weight: isMatch ? 2 : 0.8,
+      color: '#000', weight: isMatch ? 2 : 0.8,
       opacity: isMatch ? 0.9 : 0.4,
       fillColor: isMatch ? activeGrandType.color : '#1a1f26',
       fillOpacity: isMatch ? 0.85 : 0.25
     };
   }
 
-  // ── Mode SAU (défaut) ──
   const pct = getPctSAU(feature);
   const { fill, opacity } = sauColor(pct);
   return { color: '#000000', weight: 1.2, opacity: 0.6, fillColor: fill, fillOpacity: opacity };
 }
 
 // ═══════════════════════════════════════════
-// POPUP COMMUNE
+// PANNEAU INFO COMMUNE
 // ═══════════════════════════════════════════
 let rpgLayer = null;
 
@@ -758,22 +815,38 @@ function resetHighlight(e) {
 
 function showCommuneInfo(feature) {
   const p = feature.properties;
-  const nom  = p.nom  || p.NOM_COM || p.name || '—';
-  const code = p.code || p.INSEE_COM || p.CODE_INSEE || '—';
-  const surf = p.rpg_surf_ha != null ? Number(p.rpg_surf_ha).toLocaleString('fr-FR', {maximumFractionDigits:1}) : '—';
-  const nb   = p.rpg_nb_parc != null ? Number(p.rpg_nb_parc).toLocaleString('fr-FR') : '—';
 
-  const communeHa = geojsonAreaHa(feature.geometry);
-  const surfNum   = Number(p.rpg_surf_ha || 0);
-  const pctSAU    = communeHa > 0 ? Math.min((surfNum / communeHa) * 100, 100).toFixed(1) : '—';
-  const communeHaStr = communeHa > 0 ? communeHa.toLocaleString('fr-FR', {maximumFractionDigits:0}) : '—';
+  // Champs de base — nouveaux noms
+  const nom       = p.nom_officiel || '—';
+  const code      = p.code_insee   || '—';
+  const pop       = p.population != null
+                    ? Number(p.population).toLocaleString('fr-FR')
+                    : '—';
+  const communeHa = Number(p.superficie_cadastrale || 0);
+  const communeHaStr = communeHa > 0
+                    ? communeHa.toLocaleString('fr-FR', { maximumFractionDigits: 0 })
+                    : '—';
 
+  const sau    = getSAU(p);
+  const sauStr = sau > 0
+                 ? sau.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+                 : '—';
+  const pctSAU = communeHa > 0 && sau > 0
+                 ? Math.min((sau / communeHa) * 100, 100).toFixed(1)
+                 : '0';
+
+  // Densité de population (hab/km²)
+  const densite = communeHa > 0 && p.population > 0
+                  ? (Number(p.population) / (communeHa / 100)).toFixed(1)
+                  : '—';
+
+  // Détail cultures
   const cultureData = [];
   let maxSurf = 0;
-  for (const [code_c, label] of Object.entries(CULTURES)) {
-    const val = Number(p['rpg_' + code_c] || 0);
+  for (const code_c of ALL_CULTURE_CODES) {
+    const val = Number(p[code_c] || 0);
     if (val > 0) {
-      cultureData.push({ code: code_c, label, val });
+      cultureData.push({ code: code_c, label: CULTURES[code_c] || code_c, val });
       if (val > maxSurf) maxSurf = val;
     }
   }
@@ -783,14 +856,14 @@ function showCommuneInfo(feature) {
   if (cultureData.length > 0) {
     culturesHTML = `<div class="cultures-title">Détail par culture (ha)</div>`;
     for (const c of cultureData) {
-      const pctBar = maxSurf > 0 ? (c.val / maxSurf * 100).toFixed(1) : 0;
-      const gt = CODE_TO_GT[c.code];
+      const pctBar  = maxSurf > 0 ? (c.val / maxSurf * 100).toFixed(1) : 0;
+      const gt      = CODE_TO_GT[c.code];
       const barColor = gt ? gt.color : 'var(--accent)';
       culturesHTML += `
         <div class="culture-bar-row">
           <div class="culture-bar-header">
             <span class="culture-bar-name">${c.label}</span>
-            <span class="culture-bar-val">${c.val.toLocaleString('fr-FR', {maximumFractionDigits:1})} ha</span>
+            <span class="culture-bar-val">${c.val.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} ha</span>
           </div>
           <div class="culture-bar-bg">
             <div class="culture-bar-fill" style="width:${pctBar}%;background:${barColor}"></div>
@@ -798,10 +871,13 @@ function showCommuneInfo(feature) {
         </div>`;
     }
   } else {
-    culturesHTML = `<div class="info-placeholder" style="padding:16px 0"><span style="color:var(--muted);font-size:11px">Aucune donnée agricole</span></div>`;
+    culturesHTML = `<div class="info-placeholder" style="padding:16px 0">
+      <span style="color:var(--muted);font-size:11px">Aucune donnée agricole</span>
+    </div>`;
   }
 
   const sauC = sauColor(parseFloat(pctSAU));
+
   document.getElementById('commune-info').innerHTML = `
     <div class="commune-name">${nom}</div>
     <div class="commune-code">INSEE ${code}</div>
@@ -810,16 +886,20 @@ function showCommuneInfo(feature) {
       <span class="stat-val blue">${communeHaStr} ha</span>
     </div>
     <div class="stat-row">
-      <span class="stat-key">SURFACE AGRICOLE</span>
-      <span class="stat-val">${surf} ha</span>
+      <span class="stat-key">POPULATION</span>
+      <span class="stat-val blue">${pop} hab.</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-key">DENSITÉ</span>
+      <span class="stat-val blue">${densite} hab/km²</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-key">SURFACE AGRICOLE (SAU)</span>
+      <span class="stat-val">${sauStr} ha</span>
     </div>
     <div class="stat-row">
       <span class="stat-key">% SAU</span>
       <span class="stat-val" style="color:${sauC.fill === '#f5f5f5' ? 'var(--muted)' : sauC.fill}">${pctSAU}%</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-key">NB PARCELLES</span>
-      <span class="stat-val blue">${nb}</span>
     </div>
     ${culturesHTML}
   `;
@@ -828,18 +908,17 @@ function showCommuneInfo(feature) {
 function onEachCommune(feature, layer) {
   layer.on({
     mouseover: highlightCommune,
-    mouseout: resetHighlight,
+    mouseout:  resetHighlight,
     click: () => {
       showCommuneInfo(feature);
-      // Si on est sur l'onglet cultures, basculer sur SAU pour afficher l'info
-      if (currentMode !== 'sau') {
-        activateTab('sau');
-      }
+      if (currentMode !== 'sau') activateTab('sau');
     }
   });
 }
 
-// Chargement GeoJSON
+// ═══════════════════════════════════════════
+// CHARGEMENT GEOJSON
+// ═══════════════════════════════════════════
 fetch('data/communes_rpg.geojson')
   .then(r => { if (!r.ok) throw new Error(); return r.json(); })
   .then(data => {
@@ -848,7 +927,7 @@ fetch('data/communes_rpg.geojson')
       onEachFeature: onEachCommune
     }).addTo(map);
     map.fitBounds(rpgLayer.getBounds());
-    buildUI(); // construction des boutons après chargement
+    buildUI();
   })
   .catch(() => {
     document.getElementById('commune-info').innerHTML = `
@@ -859,12 +938,11 @@ fetch('data/communes_rpg.geojson')
   });
 
 // ═══════════════════════════════════════════
-// CONSTRUCTION UI CULTURES
+// UI CULTURES
 // ═══════════════════════════════════════════
 function buildUI() {
   const grid = document.getElementById('grand-type-grid');
   grid.innerHTML = '';
-
   GRAND_TYPES.forEach(gt => {
     const btn = document.createElement('button');
     btn.className = 'grand-type-btn';
@@ -878,7 +956,6 @@ function buildUI() {
 }
 
 function selectGrandType(gt) {
-  // Désélectionner si déjà actif → retour au mode grand type "tous"
   if (activeGrandType && activeGrandType.id === gt.id) {
     activeGrandType = null;
     activeCulture   = null;
@@ -895,40 +972,37 @@ function selectGrandType(gt) {
   activeCulture   = null;
   currentMode     = 'grandtype';
 
-  // Boutons grand type
   document.querySelectorAll('.grand-type-btn').forEach(b => {
     const isActive = b.dataset.id === gt.id;
     b.classList.toggle('active', isActive);
-    b.style.borderColor   = isActive ? gt.color : '';
-    b.style.background    = isActive ? gt.colorMuted : '';
-    b.style.color         = isActive ? gt.color : '';
+    b.style.borderColor = isActive ? gt.color : '';
+    b.style.background  = isActive ? gt.colorMuted : '';
+    b.style.color       = isActive ? gt.color : '';
   });
 
-  // Chips cultures détaillées
-  const chipGrid  = document.getElementById('culture-chip-grid');
+  // Chips cultures — uniquement les codes présents dans les données
+  const chipGrid   = document.getElementById('culture-chip-grid');
   const subSection = document.getElementById('sub-cultures-section');
-  const subLabel  = document.getElementById('sub-cultures-label');
+  const subLabel   = document.getElementById('sub-cultures-label');
   chipGrid.innerHTML = '';
   subLabel.textContent = gt.label + ' — détail';
 
   gt.codes.forEach(code => {
+    if (!CULTURES[code]) return; // ignorer codes absents du jeu de données
     const chip = document.createElement('button');
-    chip.className = 'culture-chip';
+    chip.className    = 'culture-chip';
     chip.dataset.code = code;
-    chip.textContent = CULTURES[code] || code;
-    chip.style.setProperty('--chip-color', gt.color);
+    chip.textContent  = CULTURES[code];
     chip.addEventListener('click', () => selectCulture(code, gt));
     chipGrid.appendChild(chip);
   });
   subSection.style.display = 'block';
 
-  // Légende grand type
   showLegendGrandType(gt);
   refreshLayer();
 }
 
 function selectCulture(code, gt) {
-  // Toggle
   if (activeCulture === code) {
     activeCulture = null;
     currentMode   = 'grandtype';
@@ -959,24 +1033,21 @@ function selectCulture(code, gt) {
   refreshLayer();
 }
 
-// ── Légende grand type ──
 function showLegendGrandType(gt) {
-  const legend = document.getElementById('culture-legend');
+  const legend  = document.getElementById('culture-legend');
   const content = document.getElementById('culture-legend-content');
   legend.style.display = 'block';
   content.innerHTML = `
     <div class="legend-culture-row">
       <div class="legend-culture-swatch" style="background:${gt.color}"></div>
-      <span style="font-size:10px;color:var(--text)">Communes dont la culture<br>majoritaire appartient à<br><strong style="color:${gt.color}">${gt.label}</strong></span>
+      <span style="font-size:10px;color:var(--text)">Communes dont la culture majoritaire<br>appartient à <strong style="color:${gt.color}">${gt.label}</strong></span>
     </div>
     <div class="legend-culture-row" style="margin-top:8px">
       <div class="legend-culture-swatch" style="background:#1a1f26"></div>
       <span style="font-size:10px;color:var(--muted)">Autre type majoritaire</span>
-    </div>
-  `;
+    </div>`;
 }
 
-// ── Légende culture précise ──
 function showLegendCulture(code, gt) {
   const legend  = document.getElementById('culture-legend');
   const content = document.getElementById('culture-legend-content');
@@ -984,16 +1055,14 @@ function showLegendCulture(code, gt) {
   content.innerHTML = `
     <div class="legend-culture-row">
       <div class="legend-culture-swatch" style="background:${gt.color}"></div>
-      <span style="font-size:10px;color:var(--text)">Communes dont la culture<br>majoritaire est<br><strong style="color:${gt.color}">${CULTURES[code]}</strong></span>
+      <span style="font-size:10px;color:var(--text)">Communes dont la culture majoritaire<br>est <strong style="color:${gt.color}">${CULTURES[code]}</strong></span>
     </div>
     <div class="legend-culture-row" style="margin-top:8px">
       <div class="legend-culture-swatch" style="background:#1a1f26"></div>
       <span style="font-size:10px;color:var(--muted)">Autre culture majoritaire</span>
-    </div>
-  `;
+    </div>`;
 }
 
-// ── Re-style du layer ──
 function refreshLayer() {
   if (!rpgLayer) return;
   rpgLayer.setStyle(styleCommune);
@@ -1013,20 +1082,14 @@ function activateTab(tab) {
     culturesPanel.style.display = 'none';
     tabSau.classList.add('active');
     tabCultures.classList.remove('active');
-    // Retour au style SAU si on revient sur cet onglet
-    if (currentMode !== 'sau') {
-      currentMode = 'sau';
-      refreshLayer();
-    }
+    if (currentMode !== 'sau') { currentMode = 'sau'; refreshLayer(); }
   } else {
     sauPanel.style.display      = 'none';
     culturesPanel.style.display = 'flex';
     tabCultures.classList.add('active');
     tabSau.classList.remove('active');
-    // Rétablit le mode culture si un filtre était actif
     if (activeCulture) currentMode = 'culture';
     else if (activeGrandType) currentMode = 'grandtype';
-    // sinon on laisse sau mais sans re-style (la carte reste en SAU jusqu'à un clic)
     if (activeGrandType) refreshLayer();
   }
 }
@@ -1034,11 +1097,7 @@ function activateTab(tab) {
 document.getElementById('tab-sau').addEventListener('click', () => activateTab('sau'));
 document.getElementById('tab-cultures').addEventListener('click', () => {
   activateTab('cultures');
-  if (!activeGrandType) {
-    // Premier accès : style SAU conservé, invite à choisir
-    currentMode = 'sau';
-    refreshLayer();
-  }
+  if (!activeGrandType) { currentMode = 'sau'; refreshLayer(); }
 });
 
 // ═══════════════════════════════════════════
@@ -1054,12 +1113,12 @@ const VILLES = [
 const villeIcon = L.divIcon({
   className: '',
   html: `<div style="width:10px;height:10px;background:#fff;border:2px solid #000;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,0.4);"></div>`,
-  iconSize: [10, 10], iconAnchor: [5, 5]
+  iconSize: [10,10], iconAnchor: [5,5]
 });
 
 const villesMarkers = VILLES.map(v =>
   L.marker([v.lat, v.lng], { icon: villeIcon })
-    .bindTooltip(v.nom, { permanent: true, direction: 'top', offset: [0, -8], className: 'ville-label' })
+    .bindTooltip(v.nom, { permanent: true, direction: 'top', offset: [0,-8], className: 'ville-label' })
 );
 const villesLayer = L.layerGroup(villesMarkers).addTo(map);
 
