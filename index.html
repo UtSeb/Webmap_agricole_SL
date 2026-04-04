@@ -224,36 +224,15 @@
       flex-shrink: 0;
     }
 
-    /* Sous-filtres cultures */
-    #sub-cultures-section {
-      border-top: 1px solid var(--border);
-      padding: 12px 16px;
-      overflow-y: auto;
-      flex-shrink: 0;
+    /* Bouton "Tous les types" — pleine largeur */
+    .tous-btn {
+      grid-column: 1 / -1;
+      border-color: var(--border);
     }
-    #sub-cultures-section::-webkit-scrollbar { width: 3px; }
-    #sub-cultures-section::-webkit-scrollbar-thumb { background: var(--border); }
-
-    .culture-chip-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .culture-chip {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      padding: 4px 8px;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .culture-chip:hover { color: var(--text); border-color: var(--text); }
-    .culture-chip.active {
-      color: var(--bg);
-      font-weight: bold;
+    .tous-btn.active {
+      border-color: var(--accent) !important;
+      background: rgba(63,185,80,0.08) !important;
+      color: var(--text) !important;
     }
 
     /* Légende cultures */
@@ -436,7 +415,7 @@
       <div class="panel-label">Couches</div>
       <label class="layer-toggle" id="toggle-rpg">
         <div class="toggle-box active" id="toggle-rpg-box"></div>
-        <span>Communes BD RPG</span>
+        <span>Communes — surface agricole utile</span>
       </label>
       <label class="layer-toggle" id="toggle-labels">
         <div class="toggle-box active" id="toggle-labels-box"></div>
@@ -446,8 +425,8 @@
 
     <!-- Onglets de mode -->
     <div class="mode-tabs">
-      <button class="mode-tab active" id="tab-sau">% SAU</button>
-      <button class="mode-tab" id="tab-cultures">Cultures</button>
+      <button class="mode-tab active" id="tab-sau">Communes</button>
+      <button class="mode-tab" id="tab-cultures">Par culture</button>
     </div>
 
     <!-- ══ PANNEAU SAU ══ -->
@@ -482,13 +461,6 @@
         </div>
       </div>
 
-      <!-- Cultures détaillées -->
-      <div id="sub-cultures-section" style="display:none;">
-        <div class="panel-label" id="sub-cultures-label">Cultures</div>
-        <div class="culture-chip-grid" id="culture-chip-grid">
-          <!-- généré en JS -->
-        </div>
-      </div>
 
       <!-- Légende dynamique -->
       <div id="culture-legend" style="display:none;">
@@ -643,28 +615,8 @@ const GRAND_TYPES = [
     color: "#3fb950",
     colorMuted: "rgba(63,185,80,0.18)",
     codes: ["PPH","PRF","PTR","SPH","SPL","LUZ","TRE","SAI","VES","LOT","MOH","MLF","MLG","MLC","CPL","AFG"]
-  },
-  {
-    id: "fruits",
-    label: "Fruits & arboriculture",
-    color: "#e07b39",
-    colorMuted: "rgba(224,123,57,0.18)",
-    codes: ["VRG","VRC","PFR","PRU","CBT","PVT","PWT","NOS","NOX","CTG","AAR","FRA","PEP","TRU"]
-  },
-  {
-    id: "maraichage",
-    label: "Maraîchage & horticulture",
-    color: "#58a6ff",
-    colorMuted: "rgba(88,166,255,0.18)",
-    codes: ["AIL","CAR","CCN","CEL","CHU","EPI","FLA","FLP","HPC","LBF","NVT","OIG","POR","POT","PTC","RDI","TOM","BTN","CSS","FRA","LAV","PME","ARP","PPP"]
-  },
-  {
-    id: "autres",
-    label: "Autres / Divers",
-    color: "#8b949e",
-    colorMuted: "rgba(139,148,158,0.18)",
-    codes: ["JAC","JNO","SNE","SNU","SBO","BOR","BTA","BFS","TCR","MSW","PEP","PPP","CSE","MCS","ACP","AME"]
   }
+
 ];
 
 // Lookup rapide code → grand type
@@ -772,6 +724,15 @@ function sauColor(pct) {
 // ═══════════════════════════════════════════
 function styleCommune(feature) {
   const p = feature.properties;
+
+  // ── Mode : tous les types simultanément ──
+  if (currentMode === 'tous') {
+    const cult = getCultureMajoritaire(p);
+    if (!cult) return { color: '#000', weight: 0.8, opacity: 0.4, fillColor: '#1a1f26', fillOpacity: 0.3 };
+    const gt = CODE_TO_GT[cult.code];
+    if (!gt) return { color: '#000', weight: 0.8, opacity: 0.4, fillColor: '#1a1f26', fillOpacity: 0.3 };
+    return { color: '#000', weight: 1.2, opacity: 0.6, fillColor: gt.color, fillOpacity: 0.85 };
+  }
 
   if (currentMode === 'culture' && activeCulture) {
     const cult = getCultureMajoritaire(p);
@@ -943,6 +904,20 @@ fetch('data/communes_rpg.geojson')
 function buildUI() {
   const grid = document.getElementById('grand-type-grid');
   grid.innerHTML = '';
+
+  // Bouton "Tous les types" en haut, pleine largeur
+  const btnTous = document.createElement('button');
+  btnTous.className = 'grand-type-btn tous-btn';
+  btnTous.id = 'btn-tous';
+  btnTous.innerHTML = `
+    <div style="display:flex;gap:4px;flex-shrink:0">
+      ${GRAND_TYPES.map(gt => `<div style="width:7px;height:7px;border-radius:50%;background:${gt.color};box-shadow:0 0 4px ${gt.color}"></div>`).join('')}
+    </div>
+    Tous les grands types`;
+  btnTous.addEventListener('click', () => selectTous());
+  grid.appendChild(btnTous);
+
+  // Boutons par grand type
   GRAND_TYPES.forEach(gt => {
     const btn = document.createElement('button');
     btn.className = 'grand-type-btn';
@@ -955,81 +930,71 @@ function buildUI() {
   });
 }
 
-function selectGrandType(gt) {
+function resetAllBtns() {
+  document.querySelectorAll('.grand-type-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.borderColor = '';
+    b.style.background  = '';
+    b.style.color       = '';
+  });
+  document.getElementById('culture-legend').style.display = 'none';
+}
+
+function selectTous() {
+  // Toggle : si déjà actif on revient au mode SAU
+  if (currentMode === 'tous') {
+    currentMode = 'sau';
+    resetAllBtns();
+    refreshLayer();
+    return;
+  }
+  currentMode     = 'tous';
+  activeGrandType = null;
+  resetAllBtns();
+  const btnTous = document.getElementById('btn-tous');
+  btnTous.classList.add('active');
+  btnTous.style.borderColor = 'var(--accent)';
+  showLegendTous();
+  refreshLayer();
+}
+
+function showLegendTous() {
+  const legend  = document.getElementById('culture-legend');
+  const content = document.getElementById('culture-legend-content');
+  legend.style.display = 'block';
+  content.innerHTML = GRAND_TYPES.map(gt => `
+    <div class="legend-culture-row">
+      <div class="legend-culture-swatch" style="background:${gt.color}"></div>
+      <span style="font-size:10px;color:var(--text)">${gt.label}</span>
+    </div>`).join('') + `
+    <div class="legend-culture-row" style="margin-top:4px">
+      <div class="legend-culture-swatch" style="background:#1a1f26"></div>
+      <span style="font-size:10px;color:var(--muted)">Type non classifié</span>
+    </div>`;
+}
+
+
   if (activeGrandType && activeGrandType.id === gt.id) {
     activeGrandType = null;
-    activeCulture   = null;
     currentMode     = 'sau';
-    document.querySelectorAll('.grand-type-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.culture-chip').forEach(b => b.classList.remove('active'));
-    document.getElementById('sub-cultures-section').style.display = 'none';
-    document.getElementById('culture-legend').style.display = 'none';
+    resetAllBtns();
     refreshLayer();
     return;
   }
 
   activeGrandType = gt;
-  activeCulture   = null;
   currentMode     = 'grandtype';
 
-  document.querySelectorAll('.grand-type-btn').forEach(b => {
-    const isActive = b.dataset.id === gt.id;
-    b.classList.toggle('active', isActive);
-    b.style.borderColor = isActive ? gt.color : '';
-    b.style.background  = isActive ? gt.colorMuted : '';
-    b.style.color       = isActive ? gt.color : '';
-  });
-
-  // Chips cultures — uniquement les codes présents dans les données
-  const chipGrid   = document.getElementById('culture-chip-grid');
-  const subSection = document.getElementById('sub-cultures-section');
-  const subLabel   = document.getElementById('sub-cultures-label');
-  chipGrid.innerHTML = '';
-  subLabel.textContent = gt.label + ' — détail';
-
-  gt.codes.forEach(code => {
-    if (!CULTURES[code]) return; // ignorer codes absents du jeu de données
-    const chip = document.createElement('button');
-    chip.className    = 'culture-chip';
-    chip.dataset.code = code;
-    chip.textContent  = CULTURES[code];
-    chip.addEventListener('click', () => selectCulture(code, gt));
-    chipGrid.appendChild(chip);
-  });
-  subSection.style.display = 'block';
-
-  showLegendGrandType(gt);
-  refreshLayer();
-}
-
-function selectCulture(code, gt) {
-  if (activeCulture === code) {
-    activeCulture = null;
-    currentMode   = 'grandtype';
-    document.querySelectorAll('.culture-chip').forEach(b => b.classList.remove('active'));
-    showLegendGrandType(gt);
-    refreshLayer();
-    return;
+  resetAllBtns();
+  const btn = document.querySelector(`.grand-type-btn[data-id="${gt.id}"]`);
+  if (btn) {
+    btn.classList.add('active');
+    btn.style.borderColor = gt.color;
+    btn.style.background  = gt.colorMuted;
+    btn.style.color       = gt.color;
   }
 
-  activeCulture = code;
-  currentMode   = 'culture';
-
-  document.querySelectorAll('.culture-chip').forEach(b => {
-    const isActive = b.dataset.code === code;
-    b.classList.toggle('active', isActive);
-    if (isActive) {
-      b.style.background  = gt.color;
-      b.style.borderColor = gt.color;
-      b.style.color       = '#0d1117';
-    } else {
-      b.style.background  = '';
-      b.style.borderColor = '';
-      b.style.color       = '';
-    }
-  });
-
-  showLegendCulture(code, gt);
+  showLegendGrandType(gt);
   refreshLayer();
 }
 
@@ -1048,20 +1013,6 @@ function showLegendGrandType(gt) {
     </div>`;
 }
 
-function showLegendCulture(code, gt) {
-  const legend  = document.getElementById('culture-legend');
-  const content = document.getElementById('culture-legend-content');
-  legend.style.display = 'block';
-  content.innerHTML = `
-    <div class="legend-culture-row">
-      <div class="legend-culture-swatch" style="background:${gt.color}"></div>
-      <span style="font-size:10px;color:var(--text)">Communes dont la culture majoritaire<br>est <strong style="color:${gt.color}">${CULTURES[code]}</strong></span>
-    </div>
-    <div class="legend-culture-row" style="margin-top:8px">
-      <div class="legend-culture-swatch" style="background:#1a1f26"></div>
-      <span style="font-size:10px;color:var(--muted)">Autre culture majoritaire</span>
-    </div>`;
-}
 
 function refreshLayer() {
   if (!rpgLayer) return;
@@ -1088,16 +1039,15 @@ function activateTab(tab) {
     culturesPanel.style.display = 'flex';
     tabCultures.classList.add('active');
     tabSau.classList.remove('active');
-    if (activeCulture) currentMode = 'culture';
-    else if (activeGrandType) currentMode = 'grandtype';
-    if (activeGrandType) refreshLayer();
+    if (currentMode === 'grandtype' && activeGrandType) refreshLayer();
+    else if (currentMode === 'tous') refreshLayer();
   }
 }
 
 document.getElementById('tab-sau').addEventListener('click', () => activateTab('sau'));
 document.getElementById('tab-cultures').addEventListener('click', () => {
   activateTab('cultures');
-  if (!activeGrandType) { currentMode = 'sau'; refreshLayer(); }
+  if (currentMode === 'sau') refreshLayer();
 });
 
 // ═══════════════════════════════════════════
